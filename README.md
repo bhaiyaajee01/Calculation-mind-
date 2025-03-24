@@ -1,1 +1,0 @@
-# Calculation-mind-
