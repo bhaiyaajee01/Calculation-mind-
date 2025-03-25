@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -16,6 +17,7 @@
             background-color: white;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            display: none;
         }
         .level {
             font-size: 24px;
@@ -48,10 +50,54 @@
             font-style: italic;
             color: #7f8c8d;
         }
+        .fireworks {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 30px;
+        }
+        .splash-screen {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: #2980b9;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .splash-screen h1 {
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+        .splash-screen button {
+            background: #f39c12;
+            font-size: 20px;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <div class="game-container">
+
+    <!-- Splash Screen -->
+    <div class="splash-screen" id="splashScreen">
+        <h1>Welcome to Calculation Mind</h1>
+        <button onclick="startGame()">Start Game</button>
+    </div>
+
+    <!-- Game Container -->
+    <div class="game-container" id="gameContainer">
         <h1>Calculation Mind</h1>
         <div class="level">Level: <span id="level">1</span>/50000</div>
         <div class="question" id="question">1 + 1 = ?</div>
@@ -61,33 +107,46 @@
         <div class="creator">Created by Bhumihar_Amrit</div>
     </div>
 
+    <!-- Fireworks Animation -->
+    <div class="fireworks" id="fireworks">🎆🎇 Congratulations! 🎇🎆</div>
+
     <script>
-        let currentLevel = 1;
-        let currentNumber = 1;
-        
+        let currentLevel = localStorage.getItem("level") ? parseInt(localStorage.getItem("level")) : 1;
+        let currentNumber = localStorage.getItem("number") ? parseInt(localStorage.getItem("number")) : 1;
+
+        function startGame() {
+            document.getElementById("splashScreen").style.display = "none";
+            document.getElementById("gameContainer").style.display = "block";
+            updateQuestion();
+        }
+
         function updateQuestion() {
             document.getElementById('level').textContent = currentLevel;
             document.getElementById('question').textContent = `${currentNumber} + ${currentNumber} = ?`;
             document.getElementById('answer').value = '';
             document.getElementById('answer').focus();
         }
-        
+
         function checkAnswer() {
             const userAnswer = parseInt(document.getElementById('answer').value);
             const correctAnswer = currentNumber + currentNumber;
-            
+
             if (userAnswer === correctAnswer) {
                 document.getElementById('result').textContent = "Correct!";
                 document.getElementById('result').style.color = "green";
-                
+
+                // Save progress
                 currentLevel++;
                 currentNumber = correctAnswer;
-                
+                localStorage.setItem("level", currentLevel);
+                localStorage.setItem("number", currentNumber);
+
                 if (currentLevel <= 50000) {
+                    showFireworks();
                     setTimeout(() => {
                         updateQuestion();
                         document.getElementById('result').textContent = "";
-                    }, 1000);
+                    }, 2000);
                 } else {
                     document.getElementById('result').textContent = "Congratulations! You completed all 50,000 levels!";
                 }
@@ -96,15 +155,25 @@
                 document.getElementById('result').style.color = "red";
             }
         }
-        
-        // Handle Enter key press
+
+        function showFireworks() {
+            document.getElementById('fireworks').style.display = "flex";
+            setTimeout(() => {
+                document.getElementById('fireworks').style.display = "none";
+            }, 1500);
+        }
+
         document.getElementById('answer').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 checkAnswer();
             }
         });
-        
-        updateQuestion();
+
+        // Check if game should start directly (if already played before)
+        if (localStorage.getItem("level")) {
+            startGame();
+        }
     </script>
+
 </body>
 </html>
